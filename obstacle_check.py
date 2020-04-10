@@ -177,7 +177,7 @@ def boundary_obstacle(clearance, radius_rigid_robot, test_point_coord):
 #
 #
 #
-def test_point_obstacle_check(clearance, radius_rigid_robot, test_point_coord, image):
+def test_point_obstacle_check(clearance, radius_rigid_robot, test_point_coord):
     #test_point_coord = cart2img(test_point_coord)
     if circular_obstacle_1(clearance, radius_rigid_robot, test_point_coord):
         return True

@@ -25,96 +25,79 @@ class GraphNode:
         self.parent = None
         self.angle = 0
 
-
 def heu(node1, node2):
   dist= math.sqrt( (node1[0] - node2[0])**2 + (node1[1] - node2[1])**2)
   return dist
 
+def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2):
+    t = 0
+    dt = 0.1
+    Xn = test_point_coord[0]
+    Yn = test_point_coord[1]
+    Thetan = pi * test_point_angle/ 180
 
-def move_along(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
-    angle = math.radians(test_point_angle + 0)
-    new_point_x= test_point_coord[0] + step_size_robot*math.cos(angle)
-    new_point_y= test_point_coord[1] + step_size_robot*math.sin(angle)
-    new_point = [new_point_x, new_point_y, test_point_angle]
-    action_cost = 1
-    test_point_obstacle_check(clearance, radius_rigid_robot, test_point_coord, image)
-    #intersection_check_of_vectors(clearance, radius_rigid_robot, test_point_coord, new_point)
-    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point, image)) == False:
-        return new_point, action_cost
+    while t < 1:
+        t = t + dt
+        Xs = Xn
+        Ys = Yn
+        Xn = Xn + (r * (2 /60) * pi *(rpm1 + rpm2) * math.cos(Thetan) * dt)/2
+        Yn = Yn + (r * (2 /60) * pi *(rpm1 + rpm2) * math.sin(Thetan) * dt)/2
+        Thetan = Thetan + ((r * (2 /60) * pi / L) * (rpm2 - rpm1) * dt)
+
+
+
+        # plt.plot([Xs, Xn], [Ys, Yn], color="blue")
+
+    left_wheel_velocity = (r * (2 / 60) * pi * (rpm1))
+    right_wheel_velocity = (r * (2 / 60) * pi * (rpm2))
+    bot_velocity = (left_wheel_velocity + right_wheel_velocity) / 2
+
+    distance_covered = bot_velocity * 1
+
+    Thetan = 180 * (Thetan) / pi
+    new_point = [Xn, Yn, Thetan]
+
+    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point)) == False:
+        return new_point, distance_covered
     else:
         return None, None
-    #return new_point, action_cost
 
 
-def move_up1(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
-    angle = math.radians(test_point_angle + 30)
-    new_point_x= test_point_coord[0] + step_size_robot*math.cos(angle)
-    new_point_y= test_point_coord[1] + step_size_robot*math.sin(angle)
-    new_point = [new_point_x, new_point_y, test_point_angle + 30]
-
-    # intersection_check_of_vectors(clearance, radius_rigid_robot, parent_coord, child_coord):
-    # test_point_coord = parent_coord
-    # new_point = child_coord
-
-    action_cost = 1
-    # intersection_check_of_vectors(clearance, radius_rigid_robot, test_point_coord, new_point)
-    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point, image)) == False:
-        return new_point, action_cost
-    else:
-        return None, None
-    # return new_point, action_cost
-
-def move_up2(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
-    angle = math.radians(test_point_angle + 60)
-    new_point_x= test_point_coord[0] + step_size_robot*math.cos(angle)
-    new_point_y= test_point_coord[1] + step_size_robot*math.sin(angle)
-    new_point = [new_point_x, new_point_y, test_point_angle + 60]
-    action_cost = 1
-    # intersection_check_of_vectors(clearance, radius_rigid_robot, test_point_coord, new_point)
-    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point, image)) == False:
-        return new_point, action_cost
-    else:
-        return None, None
-    # return new_point, action_cost
+rpm1 = 40
+rpm2 = 40
+test_point_coord = (-3.5,-3)
+test_point_angle = 30
+r = 0.033
+L = 0.160
+pi = math.pi
 
 
-def move_dn1(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
-    angle = math.radians(test_point_angle - 30)
-    new_point_x= test_point_coord[0] + step_size_robot*math.cos(angle)
-    new_point_y= test_point_coord[1] + step_size_robot*math.sin(angle)
-    new_point = [new_point_x, new_point_y, test_point_angle - 30]
-    action_cost = 1
-    # intersection_check_of_vectors(clearance, radius_rigid_robot, test_point_coord, new_point)
-    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point, image)) == False:
-        return new_point, action_cost
-    else:
-        return None, None
-    # return new_point, action_cost
-
-
-def move_dn2(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
-    angle = math.radians(test_point_angle - 60)
-    new_point_x= test_point_coord[0] + step_size_robot*math.cos(angle)
-    new_point_y= test_point_coord[1] + step_size_robot*math.sin(angle)
-    new_point = [new_point_x, new_point_y, test_point_angle - 60]
-    action_cost = 1
-    # intersection_check_of_vectors(clearance, radius_rigid_robot, test_point_coord, new_point)
-    if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point, image)) == False:
-        return new_point, action_cost
-    else:
-        return None, None
-    # return new_point, action_cost
-
-
-def get_new_node(image, action, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot):
+def get_new_node(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2):
     action_map = {
-        'S': move_along(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot),
-        'UP1': move_up1(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot),
-        'UP2': move_up2(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot),
-        'DN1': move_dn1(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot),
-        'DN2': move_dn2(image, clearance, radius_rigid_robot, test_point_coord, test_point_angle, step_size_robot),
-       }
+        'F1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1),
+        'F2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, rpm2),
+
+        'UP1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpm1),
+        'UP2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpm2),
+        'UP3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, rpm1),
+
+        'DN1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, 0),
+        'DN2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, 0),
+        'DN3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2),
+    }
     return action_map[action]
+
+action_set = [[rpm2, rpm1],
+              [0,rpm1],
+              [0,rpm2],
+              [rpm1,rpm1],
+              [rpm2,rpm2],
+              [rpm1,0],
+              [rpm2,0]
+              [rpm1, rpm2]]
+
+
+
 
 
 def get_minimum_element(queue):
@@ -155,6 +138,7 @@ def reset_angle_in_range(angle):
           return angle
 
 def find_path_astar(image, start_node_pos, goal_node_pos, clearance, radius_rigid_robot, step_size_robot, initial_angle):
+    #(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1)
     # class GraphNode:
     #     def __init__(self, point):
     #         self.position = point
@@ -213,7 +197,7 @@ def find_path_astar(image, start_node_pos, goal_node_pos, clearance, radius_rigi
         # actions = ["S", "UP1", "UP2", "DN1", "DN2"] ,     action = iterable element
         for action in actions:
             # get_new_node is run for every action , U, D, L, R, UR, DR, UL, DL
-            new_point, base_cost = get_new_node(image, action, clearance, radius_rigid_robot, current_point, current_angle, step_size_robot)
+            new_point, base_cost = get_new_node(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1)
             print(new_point)
             if new_point is not None:  # present in the explorable area and not in obstacle
                 #we get a None value as return "None" only when the new_point is in obstacle
@@ -274,14 +258,14 @@ def find_path_astar(image, start_node_pos, goal_node_pos, clearance, radius_rigi
 
 
 def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y):
-    pass
-    # if test_point_obstacle_check(clearance, radius_rigid_robot, [start_node_x, start_node_y], None):
-    #     print("Start node is inside an obstacle. Enter some other coordinates. Restart program!")
-    #     exit(0)
-    #
-    # if test_point_obstacle_check(clearance, radius_rigid_robot, [goal_node_x, goal_node_y], None):
-    #     print("Goal node is inside an obstacle. Enter some other coordinates. Restart program!")
-    #     exit(0)
+
+    if test_point_obstacle_check(clearance, radius_rigid_robot, [start_node_x, start_node_y], None):
+        print("Start node is inside an obstacle. Enter some other coordinates. Restart program!")
+        exit(0)
+
+    if test_point_obstacle_check(clearance, radius_rigid_robot, [goal_node_x, goal_node_y], None):
+        print("Goal node is inside an obstacle. Enter some other coordinates. Restart program!")
+        exit(0)
 
 
 # # Uncomment to choose different positions:-
@@ -293,9 +277,9 @@ def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_nod
 # goal_node_y = int(input("Enter the goal y coordinate for the rigid robot\n"))
 
 # #two rpm values
-# rpm_l = int(input("Enter the rpm value for the left wheel\n"))
-# rpm_r = int(input("Enter the rpm value for the right wheel\n"))
-# rpm_vector = [rpm_l, rpm_r]
+# rpm1 = int(input("Enter the rpm value for the left wheel\n"))
+# rpm2 = int(input("Enter the rpm value for the right wheel\n"))
+
 
 # radius_rigid_robot = int(input("Enter the radius of the rigid robot \n"))
 # clearance = int(input("Enter the desired clearance for the rigid robot\n"))
@@ -318,11 +302,11 @@ start_node_y = 1.5
 goal_node_x = 4.5
 goal_node_y = 4.5
 
-step_size_robot = 1
+step_size_robot = 0.1
 initial_angle = 60
 
-clearance = 1
-radius_rigid_robot = 1
+clearance = 0.2
+radius_rigid_robot = 0.105
 augment_distance = radius_rigid_robot + clearance
 
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
@@ -336,146 +320,74 @@ if (start_node_y < -5.1 and start_node_y > 5.1) and (goal_node_y < -5.1 and goal
 check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y)
 
 
-# print(test_point_obstacle_check(0,0,[230,40]))
-
-
-def plot_map(clearance, radius_rigid_robot):
-    image = np.ones((200, 300, 3), np.uint8) * 255
-
-    # print("Circle: ", circular_obstacle(r, c, [225, 150]))
-
-    for i in range(0, 300):
-        for j in range(0, 200):
-            # print("For Loop")
-            idx = cart2img([i, j])
-            # print("Circle: ", circular_obstacle(r, c, [225, 150]))
-            if circular_obstacle(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ",i,j)
-                image[j, i] = (0, 0, 0)
-
-            if ellipsoid_obstacle(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ",i,j)
-                image[j, i] = (0, 0, 0)
-
-            if rhombus_obstacle(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ",i,j)
-                image[j, i] = (0, 0, 0)
-
-            if rectangle_obstacle(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ",i,j)
-                image[j, i] = (0, 0, 0)
-
-            if nonconvex_obstacle_right_half(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ",i,j)
-                image[j, i] = (0, 0, 0)
-
-            if nonconvex_obstacle_left_half(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ", i, j)
-                image[j, i] = (0, 0, 0)
-
-            if boundary_obstacle(radius_rigid_robot, clearance, [idx[0], idx[1]]) == True:
-                # print("Circle: ", i, j)
-                image[j, i] = (0, 0, 0)
-            # image[np.where(image==255)]=True
-            # image[np.where(image==0)]=False
-    return image
-
-
-
-def cv2_imshow(resized_new):
-    pass
-
-
 def main():
-    image = plot_map(clearance, radius_rigid_robot)
 
-    adjusted_coord_start_node = ([start_node_x, start_node_y])
-    adjusted_coord_goal_node = ([goal_node_x, goal_node_y])
-
-    image[adjusted_coord_start_node[1], adjusted_coord_start_node[0]] = (0, 255, 10)
-    image[adjusted_coord_goal_node[1], adjusted_coord_goal_node[0]] = (10, 0, 255)
-
-    start_node_position = [start_node_x, start_node_y]
-    goal_node_position = [goal_node_x, goal_node_y]
-
-    #find_path_astar(image, start_node_pos, goal_node_pos, clearance, radius_rigid_robot):
-
-    visited_list, parent_child_map, last_node = find_path_astar(image, start_node_position, goal_node_position, clearance,
+    visited_list, parent_child_map, last_node = find_path_astar(None, start_node_position, goal_node_position, clearance,
                                                         radius_rigid_robot, step_size_robot, initial_angle)
 
-
     # # plot the path:
-    # fig, ax = plt.subplots()
-    # plt.grid()
+    fig, ax = plt.subplots()
+    plt.grid()
     # #
-    #ax.set_aspect('equal')
+    ax.set_aspect('equal')
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    circle1 = plt.Circle((2, 3), radius=1 + augment_distance)
+    ax.add_patch(circle1)
 
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
+    circle2 = plt.Circle((0, 0), radius=1 + augment_distance)
+    ax.add_patch(circle2)
 
-    ax.set_xlabel('sample')
-    ax.set_ylabel('z-score')
+    circle3 = plt.Circle((-2, -3), radius=1 + augment_distance)
+    ax.add_patch(circle3)
 
-    plt.axhline(0, color='black')
-    plt.ylim(-300, 300)
-    #plt.scatter('x_', 'y_', data=df, marker='o')
-    # plt.style.use('seaborn-dark')
-    plt.show()
+    circle4 = plt.Circle((2, -3), radius=1 + augment_distance)
+    ax.add_patch(circle4)
 
+    points = [[-1.25 + augment_distance, 3.75 + augment_distance], [-1.25 + augment_distance, 2.25 - augment_distance],
+              [-2.75 - augment_distance, 2.25 - augment_distance], [-2.75 - augment_distance, 3.75 + augment_distance]]
+    square1 = plt.Polygon(points)
+    ax.add_patch(square1)
 
-    circle = plt.Circle((2,3), radius= 1+augment_distance)
-    ax.add_patch(circle)
+    points = [[-3.25 + augment_distance, 0.75 + augment_distance], [-4.75 - augment_distance, 0.75 + augment_distance],
+              [-4.75 - augment_distance, -0.75 - augment_distance],
+              [-3.25 + augment_distance, -0.75 - augment_distance]]
+    square2 = plt.Polygon(points)
+    ax.add_patch(square2)
 
-    circle = plt.Circle((0,0), radius= 1 + augment_distance)
-    ax.add_patch(circle)
+    points = [[3.25 - augment_distance, 0.75 + augment_distance], [4.75 + augment_distance, 0.75 + augment_distance],
+              [4.75 + augment_distance, -0.75 - augment_distance], [3.25 - augment_distance, -0.75 - augment_distance]]
+    square3 = plt.Polygon(points)
+    ax.add_patch(square3)
 
-    circle = plt.Circle((2, -3), radius= 1 + augment_distance)
-    ax.add_patch(circle)
-
-    circle = plt.Circle((-2, -3), radius= 1 + augment_distance)
-    ax.add_patch(circle)
-
-    points = [[-1.25,3.75], [-1.25,2.25], [-2.75,2.25], [-2.75,3.75]]
-    polygon = plt.Polygon(points)
-    ax.add_patch(polygon)
-
-    points = [[-3.25, 0.75], [-4.75, 0.75], [-4.75, -0.75], [-3.25, -0.75]]
-    polygon = plt.Polygon(points)
-    ax.add_patch(polygon)
-
-    points = [[3.25, 0.75], [4.75, 0.75], [3.25, -0.75], [4.75, -0.75]]
-    polygon = plt.Polygon(points)
-    ax.add_patch(polygon)
-
-    #add the left boundary
-    points = [[-5.1,-5.1], [-5.1,5.1],
-              [-5.1+augment_distance+0.1,-5.1], [-5.1+augment_distance+0.1,5.1]]
+    # 0.1 = thickness of the boundary of the world map
+    # add the left boundary
+    points = [[-5.1, -5.1], [-5.1, 5.1],
+              [-5.1 + augment_distance + 0.1, 5.1], [-5.1 + augment_distance + 0.1, -5.1]]
     polygon = plt.Polygon(points)
     ax.add_patch(polygon)
 
     # add the top boundary
-    points = [[5.1, 5.1], [-5.1, 5.1],[-5.1, 5.1-augment_distance-0.1],
-              [5.1 , 5.1- augment_distance-0.1]]
+    points = [[5.1, 5.1], [-5.1, 5.1], [-5.1, 5.1 - augment_distance - 0.1],
+              [5.1, 5.1 - augment_distance - 0.1]]
     polygon = plt.Polygon(points)
     ax.add_patch(polygon)
 
     # add the lower boundary
-    points = [[5.1, -5.1], [-5.1, -5.1], [-5.1, -5.1 + augment_distance +0.1],
-              [5.1, -5.1 + augment_distance + 1]]
+    points = [[5.1, -5.1], [-5.1, -5.1], [-5.1, -5.1 + augment_distance + 0.1],
+              [5.1, -5.1 + augment_distance + 0.1]]
     polygon = plt.Polygon(points)
     ax.add_patch(polygon)
 
     # add the right boundary
-    points = [[5.1, 5.1], [5.1, -5.1], [5.1 - augment_distance -0.1, -5.1],
-              [5.1-augment_distance -0.1, 5.1]]
+    points = [[5.1, 5.1], [5.1, -5.1], [5.1 - augment_distance - 0.1, -5.1],
+              [5.1 - augment_distance - 0.1, 5.1]]
     polygon = plt.Polygon(points)
     ax.add_patch(polygon)
 
     plt.xlim(-5.5, 5.5)
     plt.ylim(-5.5, 5.5)
+
+    plt.show()
 
     out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'XVID'), 1, (565, 379))
 

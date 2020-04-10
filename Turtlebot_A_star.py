@@ -5,7 +5,6 @@
 
 # import intersection_check as ic
 
-from intersection_check import *
 from obstacle_check import *
 from matplotlib.patches import *
 import numpy as np

@@ -5,7 +5,7 @@ import cv2
 from time import process_time
 
 
-from intersection_check import *
+#from intersection_check import *
 
 def find_line_slope_and_intercept(test_point_coord, line_point_1, line_point_2):
     if (line_point_2[0] - line_point_1[0]) == 0:

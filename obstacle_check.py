@@ -9,7 +9,7 @@ from intersection_check import *
 
 
 def cart2img(adjust_coord):
-    return [adjust_coord[0], 200 - adjust_coord[1]]
+    return [adjust_coord[0], 5.1 - adjust_coord[1]]
 
 # function returns false when the point is outside the circle
 def circular_obstacle(clearance, radius_rigid_robot, test_point_coord):

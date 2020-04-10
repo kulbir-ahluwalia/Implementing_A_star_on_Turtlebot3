@@ -284,21 +284,32 @@ def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_nod
     #     exit(0)
 
 
-# radius_rigid_robot = int(input("Enter the radius of the rigid robot \n"))
-# clearance = int(input("Enter the desired clearance for the rigid robot\n"))
 # # Uncomment to choose different positions:-
 # start_node_x = int(input("Enter the starting x coordinate for the rigid robot\n"))
 # start_node_y = int(input("Enter the starting y coordinate for the rigid robot\n"))
 # initial_angle = int(input("Enter the initial angle of the robot in degree\n"))
 #
+# goal_node_x = int(input("Enter the goal x coordinate for the rigid robot\n"))
+# goal_node_y = int(input("Enter the goal y coordinate for the rigid robot\n"))
+
+# #two rpm values
+# rpm_l = int(input("Enter the rpm value for the left wheel\n"))
+# rpm_r = int(input("Enter the rpm value for the right wheel\n"))
+# rpm_vector = [rpm_l, rpm_r]
+
+# radius_rigid_robot = int(input("Enter the radius of the rigid robot \n"))
+# clearance = int(input("Enter the desired clearance for the rigid robot\n"))
+
+turtlebot_diameter = 0.21 #0.21 metres
+wheel_distance = 0.16
+
+
 # step_size_robot = int(input("Enter the step size of movement of the robot: "))
 # if (step_size_robot < 1 and step_size_robot > 10):
 #     print("Step_size_robot is out of range. Enter step_size_robot from [0,10]. Restart program!")
 #     exit(0)
 #
 #
-# goal_node_x = int(input("Enter the goal x coordinate for the rigid robot\n"))
-# goal_node_y = int(input("Enter the goal y coordinate for the rigid robot\n"))
 
 # for testing
 start_node_x = 1.5

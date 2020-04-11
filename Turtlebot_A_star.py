@@ -23,7 +23,7 @@ goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
 start_node_position = [start_node_x, start_node_y]
 goal_node_position = [goal_node_x, goal_node_y]
 
-#two rpm values
+# two rpm values
 rpml = float(input("Enter the rpm value for the left wheel\n"))
 rpmr = float(input("Enter the rpm value for the right wheel\n"))
 
@@ -33,7 +33,6 @@ clearance = float(input("Enter the desired clearance for the rigid robot\n"))
 r = 0.033
 L = 0.160
 pi = math.pi
-
 
 #
 ###################################################################################################################
@@ -69,12 +68,6 @@ pi = math.pi
 # test_point_angle = 30
 
 
-
-
-
-
-
-
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
     print("X coordinate is out of range. Enter x from [0,300]. Restart program!")
     exit(0)
@@ -83,8 +76,8 @@ if (start_node_y < -5.1 and start_node_y > 5.1) and (goal_node_y < -5.1 and goal
     print("Y coordinate is out of range. Enter y from [0,200]. Restart program!")
     exit(0)
 
-def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y):
 
+def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y):
     if test_point_obstacle_check(clearance, radius_rigid_robot, [start_node_x, start_node_y]):
         print("Start node is inside an obstacle. Enter some other coordinates. Restart program!")
         exit(0)
@@ -94,8 +87,8 @@ def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_nod
         exit(0)
 
 
-
 check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y)
+
 
 class GraphNode:
     def __init__(self, point):
@@ -105,16 +98,18 @@ class GraphNode:
         self.parent = None
         self.angle = 0
 
+
 def heu(node1, node2):
-  dist= math.sqrt( (node1[0] - node2[0])**2 + (node1[1] - node2[1])**2)
-  return dist
+    dist = math.sqrt((node1[0] - node2[0]) ** 2 + (node1[1] - node2[1]) ** 2)
+    return dist
+
 
 def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr):
     t = 0
     dt = 0.1
     Xn = test_point_coord[0]
     Yn = test_point_coord[1]
-    Thetan = pi * test_point_angle/ 180
+    Thetan = pi * test_point_angle / 180
 
     time = 2
 
@@ -122,10 +117,9 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
         t = t + dt
         Xs = Xn
         Ys = Yn
-        Xn = Xn + (r * (2 /60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
-        Yn = Yn + (r * (2 /60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
-        Thetan = Thetan + ((r * (2 /60) * pi / L) * (rpmr - rpml) * dt)
-
+        Xn = Xn + (r * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
+        Yn = Yn + (r * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
+        Thetan = Thetan + ((r * (2 / 60) * pi / L) * (rpmr - rpml) * dt)
 
     left_wheel_velocity = (r * (2 / 60) * pi * (rpml))
     right_wheel_velocity = (r * (2 / 60) * pi * (rpmr))
@@ -157,16 +151,8 @@ def get_new_node(action, clearance, radius_rigid_robot, test_point_coord, test_p
     }
     return action_map[action]
 
-actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]
 
-# action_set = [[rpm2, rpm1],
-#               [0,rpm1],
-#               [0,rpm2],
-#               [rpm1,rpm1],
-#               [rpm2,rpm2],
-#               [rpm1,0],
-#               [rpm2,0],
-#               [rpm1, rpm2]]
+actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]
 
 
 def get_minimum_element(queue):
@@ -175,8 +161,9 @@ def get_minimum_element(queue):
         if queue[index].total_cost < queue[min_index].total_cost:
             min_index = index
 
-    #return the object with the lowest total _cost
+    # return the object with the lowest total _cost
     return queue.pop(min_index)
+
 
 def round_off_till_threshold(number, threshold):
     number_double = round((number / threshold))
@@ -188,24 +175,35 @@ def approximation(x, y, angle_theta):
     y = round_off_till_threshold(y, 0.1)
 
     angle_theta = round_off_till_threshold(angle_theta, 30)
-    #angle_theta = reset_angle_in_range(angle_theta)
-    return (x, y, int(angle_theta/30))
+    # angle_theta = reset_angle_in_range(angle_theta)
+    return (x, y, int(angle_theta / 30))
 
 
 def check_goal(position, goal):
-  if (((position[0]- goal[0])**2)+ ((position[1] - goal[1])**2)) <= (0.5)**2:
-    return True
-  else:
-    return False
+    if (((position[0] - goal[0]) ** 2) + ((position[1] - goal[1]) ** 2)) <= (0.5) ** 2:
+        return True
+    else:
+        return False
 
 
 def reset_angle_in_range(angle):
-      if angle >= 360:
-          return angle % 360
-      if angle < 0:
-          return 360 + angle
-      else:
-          return angle
+    if angle >= 360:
+        return angle % 360
+    if angle < 0:
+        return 360 + angle
+    else:
+        return angle
+
+
+plot_curve_action_set = [[rpm2, rpm1],
+                         [0, rpm1],
+                         [0, rpm2],
+                         [rpm1, rpm1],
+                         [rpm2, rpm2],
+                         [rpm1, 0],
+                         [rpm2, 0],
+                         [rpm1, rpm2]]
+
 
 def plot_curve(current_point, current_angle, rpml, rpmr):
     Xn = current_point[0]
@@ -213,7 +211,6 @@ def plot_curve(current_point, current_angle, rpml, rpmr):
     Xs = Xn
     Ys = Yn
     Thetan = current_angle
-
 
     Xn = Xn + (r * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
     Yn = Yn + (r * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
@@ -226,7 +223,7 @@ def plot_curve(current_point, current_angle, rpml, rpmr):
 
 
 def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle):
-    #(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpml)
+    # (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpml)
     # class GraphNode:
     #     def __init__(self, point):
     #         self.position = point
@@ -237,7 +234,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
 
     start_node = GraphNode(start_node_pos)
     start_node.cost = 0  # initialise cost of start node = 0
-    start_node.angle = initial_angle #Set the angle of start node as given by user
+    start_node.angle = initial_angle  # Set the angle of start node as given by user
 
     # visited = list()  # list of all visited nodes
     queue = [start_node]  # queue is a list that contains yet to be explored node "objects"
@@ -247,7 +244,8 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
     actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]  # define a list with all the possible actions
     visited_set = set()  # a set is used to remove the duplicate node values
     visited_list = []  # a list is used to visualize the order of nodes visited and to maintain order
-    cost_updates_matrix = np.zeros((int(10/threshold_for_duplicate), int(10/threshold_for_duplicate), 12), dtype=object)   #To keep track of duplicate nodes
+    cost_updates_matrix = np.zeros((int(10 / threshold_for_duplicate), int(10 / threshold_for_duplicate), 12),
+                                   dtype=object)  # To keep track of duplicate nodes
     # note that the datatype in the above command is "object" because everything in python is an object, even numbers are objects.
     # print(cost_updates_matrix)
 
@@ -255,12 +253,13 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
     goal_reached = False  # set the goal_reached flag to zero initially
     parent_child_map = {}  # define a dictionary to store parent and child relations
     # key in a dict can't be a list, only immutable things can be used as keys, so use tuples as keys
-    parent_child_map[tuple([start_node_pos[0], start_node_pos[1], initial_angle])] = None  # for start node, there is no parent
+    parent_child_map[
+        tuple([start_node_pos[0], start_node_pos[1], initial_angle])] = None  # for start node, there is no parent
     # parent_child_map[key=tuple(x,y,theta)] = value of the key-value pair of the dictionary = None as node 1 has no parent :(
     # print(parent_child_map)
 
     start = process_time()  # start the time counter for calculating run time for the A* search algorithm
-    last_node = None    #called last node because goal is not reached as such, we only reach in a 1.5 radius circle around the goal point
+    last_node = None  # called last node because goal is not reached as such, we only reach in a 1.5 radius circle around the goal point
 
     fig, ax = plt.subplots()
 
@@ -270,10 +269,11 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
         current_angle = current_node.angle
         # visited.append(str(current_point))  # convert the current_point to an immutable string and store it in the list "visited"
 
-
-        if approximation(current_point[0], current_point[1], current_angle) not in visited_set:     #to avoid adding duplicates in the list
+        if approximation(current_point[0], current_point[1],
+                         current_angle) not in visited_set:  # to avoid adding duplicates in the list
             visited_list.append(current_node)
-        visited_set.add(approximation(current_point[0], current_point[1], current_angle))  # you can only put immutable objects in a set, string is also immutable
+        visited_set.add(approximation(current_point[0], current_point[1],
+                                      current_angle))  # you can only put immutable objects in a set, string is also immutable
 
         if check_goal(current_point, goal_node_pos):
             goal_reached = True
@@ -282,16 +282,18 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
             last_node = current_node
             break
 
-
         # to generate, explore and append possible next positions, make a list of all the generated child nodes
         child_nodes = []
         # actions = ["S", "UP1", "UP2", "DN1", "DN2"] ,     action = iterable element
         for action in actions:
             # get_new_node is run for every action , U, D, L, R, UR, DR, UL, DL
-            new_point, base_cost = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
+            new_point, base_cost = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle,
+                                                rpml, rpmr)
 
-            #rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr)
-            #X1 = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
+            plot_curve(current_point, current_angle, rpml, rpmr)
+
+            # rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr)
+            # X1 = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
             # for action in actions:
             #     X2 = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
 
@@ -307,22 +309,12 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
             # plt.show()
             # plt.close()
 
-
-
-
-
-
-
-
-
-
-
-            #print(new_point)
+            # print(new_point)
             if new_point is not None:  # present in the explorable area and not in obstacle
                 # print(action)
-                #we get a None value as return "None" only when the new_point is in obstacle
+                # we get a None value as return "None" only when the new_point is in obstacle
                 # print(len(new_point))
-              #if new_point is not visited[int()][][]
+                # if new_point is not visited[int()][][]
                 child_nodes.append((new_point, base_cost))  # append the new node in child nodes along with cost
 
         # print(child_nodes[0])        #first element of the list = ([x,y,theta],cost)
@@ -342,7 +334,8 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                 # print(approx_x, approx_y, approx_theta)
 
                 # to find the previous cost from the cost_update_matrix
-                prev_cost = cost_updates_matrix[approx_y + int(5/threshold_for_duplicate), approx_x+int(5/threshold_for_duplicate), approx_theta]  # row,column
+                prev_cost = cost_updates_matrix[approx_y + int(5 / threshold_for_duplicate), approx_x + int(
+                    5 / threshold_for_duplicate), approx_theta]  # row,column
                 # prev_cost = cost_updates_matrix[y, x]  # row,column
 
                 # add the cost of the child to the current node's cost to get new cost
@@ -350,10 +343,12 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                 total_cost = new_cost + heu(child[0], goal_node_pos)
 
                 if total_cost < prev_cost:
-                    print(approx_x+int(5/threshold_for_duplicate), approx_y+int(5/threshold_for_duplicate), approx_theta)
+                    print(approx_x + int(5 / threshold_for_duplicate), approx_y + int(5 / threshold_for_duplicate),
+                          approx_theta)
 
-                    #in cost_updates_matrix, put new cost in place of infinity
-                    cost_updates_matrix[approx_y + int(5/threshold_for_duplicate), approx_x+int(5/threshold_for_duplicate), approx_theta] = new_cost
+                    # in cost_updates_matrix, put new cost in place of infinity
+                    cost_updates_matrix[approx_y + int(5 / threshold_for_duplicate), approx_x + int(
+                        5 / threshold_for_duplicate), approx_theta] = new_cost
                     child_node = GraphNode(child[0])
                     child_node.cost = new_cost
                     child_node.parent = current_node
@@ -362,8 +357,9 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                     queue.append(child_node)  # child_node is yet to be explored
                     print('addedtoq')
                     #
-                    #key=child coord,  value=parent coord
-                    parent_child_map[tuple(child[0])] = tuple([current_point[0], current_point[1], current_angle])  # key, always immutable, here, tuple = tuple(child[0])
+                    # key=child coord,  value=parent coord
+                    parent_child_map[tuple(child[0])] = tuple([current_point[0], current_point[1],
+                                                               current_angle])  # key, always immutable, here, tuple = tuple(child[0])
                     #   #value, can be anything = current_point
 
     end = process_time()
@@ -372,19 +368,16 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
     if goal_reached:
         print('Reached')
         return visited_list, parent_child_map, last_node
-        #return visited_set, parent_child_map, last_node
+        # return visited_set, parent_child_map, last_node
     else:
-        #if goal is not found then the visited list is returned as None, parent child, Last node map are also returned as None
+        # if goal is not found then the visited list is returned as None, parent child, Last node map are also returned as None
         return None, None, None
 
 
-
-
 def main():
-
     visited_list, parent_child_map, last_node = find_path_astar(start_node_position, goal_node_position, clearance,
-                                                        radius_rigid_robot, initial_angle)
-    #(start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle)
+                                                                radius_rigid_robot, initial_angle)
+    # (start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle)
     # # plot the path:
     fig, ax = plt.subplots()
     plt.grid()
@@ -461,52 +454,50 @@ def main():
             child_pos = v.position
             if v.parent is not None:
                 parent_pos = v.parent.position
-                ax.quiver(parent_pos[0], parent_pos[1], child_pos[0]-parent_pos[0], child_pos[1]-parent_pos[1], units='xy', scale=1)
+                ax.quiver(parent_pos[0], parent_pos[1], child_pos[0] - parent_pos[0], child_pos[1] - parent_pos[1],
+                          units='xy', scale=1)
 
-                if ind%3000==0:
+                if ind % 3000 == 0:
                     # "." denotes the current directory
                     # ".." denotes the previous directory
                     plt_name = './plots/plot' + str(ind) + '.png'
 
-                    #savefig is a function of matplotlib
+                    # savefig is a function of matplotlib
                     plt.savefig(plt_name, bbox_inches='tight')
 
-                    #read the image stored using cv2
+                    # read the image stored using cv2
                     plot_img = cv2.imread(plt_name)
 
-                    #plot_img.shape = gives dimension of the frame
-                    #print('frame', plot_img.shape)
+                    # plot_img.shape = gives dimension of the frame
+                    # print('frame', plot_img.shape)
 
                     # write the image in the video
                     out.write(plot_img)
 
-
-
-
-
         trace_path = []
 
-        #last_node = child of some node
-        #now we need to track back to the starting position and print the final path
+        # last_node = child of some node
+        # now we need to track back to the starting position and print the final path
         child_pos = last_node.position
         child_pos_tuple = (child_pos[0], child_pos[1], last_node.angle)
 
-        #find the parent of last node
+        # find the parent of last node
         parent = parent_child_map[child_pos_tuple]
 
-        #to trackback and plot the vectors
+        # to trackback and plot the vectors
         while parent is not None:
-        #     # parent is None only at the first node
-        #     #ax.quiver to plot the vector
-              ax.quiver(parent[0], parent[1], child_pos_tuple[0] - parent[0], child_pos_tuple[1] - parent[1], units='xy', scale=1, color='g')
-        #
-              trace_path.append(parent)
-        #     # Every parent has a child, kyunki saas bhi kabhi bahu thi... - Guruji
-        #     # the current parent is made a child
-              child_pos_tuple = parent
-        #
-        #     # find the parent of the parent using the parent_child_map
-              parent = parent_child_map[parent]
+            #     # parent is None only at the first node
+            #     #ax.quiver to plot the vector
+            ax.quiver(parent[0], parent[1], child_pos_tuple[0] - parent[0], child_pos_tuple[1] - parent[1], units='xy',
+                      scale=1, color='g')
+            #
+            trace_path.append(parent)
+            #     # Every parent has a child, kyunki saas bhi kabhi bahu thi... - Guruji
+            #     # the current parent is made a child
+            child_pos_tuple = parent
+            #
+            #     # find the parent of the parent using the parent_child_map
+            parent = parent_child_map[parent]
         #
         #
         plt_name = './plots/plot.png'
@@ -515,7 +506,6 @@ def main():
         out.write(plot_img)
 
         out.release()
-
 
         # fig.show()
         # fig.draw()
@@ -567,5 +557,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

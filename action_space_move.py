@@ -60,8 +60,8 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
 
 
 
-# print(rpm_1_1(0.2,       0.105,              (-3.5,-3),         0,               rpm1,   rpm2))
-#             (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2)
+# print(rpm_1_1(0.2,       0.105,              (-3.5,-3),         0,               rpml,   rpmr))
+#             (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr)
 
 for action in action_set:
     X1 = rpm_1_1(clearance, radius_rigid_robot, test_point_coord, test_point_angle, action[0], action[1])  # (0,0,45) hypothetical start configuration

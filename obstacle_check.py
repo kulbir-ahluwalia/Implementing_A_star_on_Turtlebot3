@@ -180,29 +180,38 @@ def boundary_obstacle(clearance, radius_rigid_robot, test_point_coord):
 def test_point_obstacle_check(clearance, radius_rigid_robot, test_point_coord):
     #test_point_coord = cart2img(test_point_coord)
     if circular_obstacle_1(clearance, radius_rigid_robot, test_point_coord):
+        print('in c1', test_point_coord)
         return True
     elif circular_obstacle_2(clearance, radius_rigid_robot, test_point_coord):
+        print('in c2', test_point_coord)
         return True
     elif circular_obstacle_3(clearance, radius_rigid_robot, test_point_coord):
+        print('in c3', test_point_coord)
         return True
     elif circular_obstacle_4(clearance, radius_rigid_robot, test_point_coord):
+        print('in c4', test_point_coord)
         return True
     elif square_obstacle_1(clearance, radius_rigid_robot, test_point_coord):
+        print('in s1', test_point_coord)
         return True
     elif square_obstacle_2(clearance, radius_rigid_robot, test_point_coord):
+        print('in s2', test_point_coord)
         return True
     elif square_obstacle_3(clearance, radius_rigid_robot, test_point_coord):
+        print('in s3', test_point_coord)
         return True
     elif boundary_obstacle(clearance, radius_rigid_robot, test_point_coord):
+        print('in b', test_point_coord)
         return True
     else:
+        #print('good')
         return False
 #
 
 
-# print(square_obstacle_1(0.1,0.1,(-2,3)))   #inside square 1, hence output is true
-# print(square_obstacle_1(0.1,0.1,(-2.75,3.75)))   #on boundary of square 1, hence output is true
-# print(square_obstacle_1(0,0,(0,0))) #outside, hence false
+#print(square_obstacle_1(0.1,0.1,(-2,3)))   #inside square 1, hence output is true
+#print(square_obstacle_1(0.1,0.1,(-2.75,3.75)))   #on boundary of square 1, hence output is true
+#print(square_obstacle_1(0,0,(0,0))) #outside, hence false
 
 
 # print(square_obstacle_2(0.1,0.1,(-4,0)))   #inside square 1, hence output is true

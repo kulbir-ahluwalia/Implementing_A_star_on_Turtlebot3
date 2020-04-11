@@ -35,7 +35,10 @@ actions=[[5,5],[5,0],[0,5],[5,10],[10,5]]
 for action in actions:
    X1= plot_curve(0,0,45, action[0],action[1]) # (0,0,45) hypothetical start configuration
    for action in actions:
-        X2=plot_curve(X1[0],X1[1],X1[2], action[0],action[1])
+         X2=plot_curve(X1[0],X1[1],X1[2], action[0],action[1])
+
+#to make a line from 2,6 to 4,10
+plt.plot([2, 4], [6, 10], color="blue")
 
 plt.grid()
 

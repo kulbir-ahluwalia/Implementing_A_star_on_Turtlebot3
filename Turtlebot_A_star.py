@@ -12,60 +12,67 @@ import matplotlib.pyplot as plt
 from time import process_time
 import cv2
 
+###################################################################################################################
+#               USER INPUT
+###################################################################################################################
 # Uncomment to choose different positions:-
-start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
-start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
-initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
-
-goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
-goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
-
-start_node_position = [start_node_x, start_node_y]
-goal_node_position = [goal_node_x, goal_node_y]
-
-# two rpm values
-rpml = float(input("Enter the rpm value for the left wheel\n"))
-rpmr = float(input("Enter the rpm value for the right wheel\n"))
-
-radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
-clearance = float(input("Enter the desired clearance for the rigid robot\n"))
-
-r = 0.033
-L = 0.160
-pi = math.pi
-
+# print("Kindly enter all values in metres")
+# start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
+# start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
+# initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
 #
-###################################################################################################################
-#               TESTING CODE
-###################################################################################################################
-
-# turtlebot_diameter = 0.21 #0.21 metres
-# wheel_distance = 0.16
-#
-# # for testing
-# start_node_x = -3.5
-# start_node_y = -3
-#
-# goal_node_x = 0
-# goal_node_y = -3
+# goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
+# goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
 #
 # start_node_position = [start_node_x, start_node_y]
 # goal_node_position = [goal_node_x, goal_node_y]
 #
-# initial_angle = 60
+# # two rpm values
+# rpm1 = float(input("Enter value of rpm 1\n"))
+# rpm2 = float(input("Enter value of rpm 2\n"))
 #
-# threshold_for_duplicate = 0.1
-#
-# visited = np.zeros((10/threshold_for_duplicate,10/threshold_for_duplicate,12))
-#
-#
-# clearance = 0.2
-# radius_rigid_robot = 0.105
+# radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
+# clearance = float(input("Enter the desired clearance for the rigid robot\n"))
 # augment_distance = radius_rigid_robot + clearance
-# rpml = 40
-# rpmr = 50
-# test_point_coord = (-4,-4)
-# test_point_angle = 30
+
+###################################################################################################################
+#               CONSTANTS
+###################################################################################################################
+threshold_for_duplicate = 0.1
+radius_wheel = 0.033
+distance_between_wheels = 0.160
+pi = math.pi
+time_for_moving_turtlebot = 5
+
+###################################################################################################################
+#               TESTING CODE
+###################################################################################################################
+
+turtlebot_diameter = 0.21 #0.21 metres
+
+# for testing for video 1
+start_node_x = -3.5
+start_node_y = -3
+initial_angle = 30
+goal_node_x = 0
+goal_node_y = -3
+
+# # for testing for video 2
+# start_node_x = -3.5
+# start_node_y = -3
+# initial_angle = 30
+# goal_node_x = 0
+# goal_node_y = -3
+
+rpm1 = 40
+rpm2 = 50
+radius_rigid_robot = 0.105
+
+clearance = 0.2
+start_node_position = [start_node_x, start_node_y]
+goal_node_position = [goal_node_x, goal_node_y]
+threshold_for_duplicate = 0.1
+augment_distance = radius_rigid_robot + clearance
 
 
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
@@ -97,6 +104,7 @@ class GraphNode:
         self.total_cost = 0
         self.parent = None
         self.angle = 0
+        self.action = None
 
 
 def heu(node1, node2):
@@ -110,22 +118,20 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
     Xn = test_point_coord[0]
     Yn = test_point_coord[1]
     Thetan = pi * test_point_angle / 180
-
-    time = 2
-
-    while t < time:
+ 
+    while t < time_for_moving_turtlebot:
         t = t + dt
         Xs = Xn
         Ys = Yn
-        Xn = Xn + (r * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
-        Yn = Yn + (r * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
-        Thetan = Thetan + ((r * (2 / 60) * pi / L) * (rpmr - rpml) * dt)
+        Xn = Xn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
+        Yn = Yn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
+        Thetan = Thetan + ((radius_wheel * (2 / 60) * pi / distance_between_wheels) * (rpmr - rpml) * dt)
 
-    left_wheel_velocity = (r * (2 / 60) * pi * (rpml))
-    right_wheel_velocity = (r * (2 / 60) * pi * (rpmr))
+    left_wheel_velocity = (radius_wheel * (2 / 60) * pi * (rpml))
+    right_wheel_velocity = (radius_wheel * (2 / 60) * pi * (rpmr))
     bot_velocity = (left_wheel_velocity + right_wheel_velocity) / 2
 
-    distance_covered = bot_velocity * time
+    distance_covered = bot_velocity * time_for_moving_turtlebot
 
     Thetan = 180 * (Thetan) / pi
     new_point = [Xn, Yn, Thetan]
@@ -136,21 +142,33 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
         return None, None
 
 
-def get_new_node(action, clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr):
+def get_new_node(action, clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2):
     action_map = {
-        'F1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpml),
-        'F2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpmr, rpmr),
+        'F1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1),
+        'F2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, rpm2),
 
-        'UP1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpml),
-        'UP2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpmr),
-        'UP3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpmr, rpml),
+        'UP1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpm1),
+        'UP2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, 0, rpm2),
+        'UP3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, rpm1),
 
-        'DN1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, 0),
-        'DN2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpmr, 0),
-        'DN3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr),
+        'DN1': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, 0),
+        'DN2': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm2, 0),
+        'DN3': rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2)
     }
     return action_map[action]
 
+
+action_map_with_rpm = { 'F1': (rpm1, rpm1),
+                        'F2': (rpm2, rpm2),
+
+                        'UP1': (0, rpm1),
+                        'UP2': (0, rpm2),
+                        'UP3': (rpm2, rpm1),
+
+                        'DN1': (rpm1, 0),
+                        'DN2': (rpm2, 0),
+                        'DN3': (rpm1, rpm2)
+                        }
 
 actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]
 
@@ -195,35 +213,30 @@ def reset_angle_in_range(angle):
         return angle
 
 
-plot_curve_action_set = [[rpm2, rpm1],
-                         [0, rpm1],
-                         [0, rpm2],
-                         [rpm1, rpm1],
-                         [rpm2, rpm2],
-                         [rpm1, 0],
-                         [rpm2, 0],
-                         [rpm1, rpm2]]
-
-
 def plot_curve(current_point, current_angle, rpml, rpmr):
+    t = 0
+    dt = 0.1
     Xn = current_point[0]
     Yn = current_point[1]
     Xs = Xn
     Ys = Yn
     Thetan = current_angle
 
-    Xn = Xn + (r * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
-    Yn = Yn + (r * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
-    Thetan = Thetan + ((r * (2 / 60) * pi / L) * (rpmr - rpml) * dt)
+    while t < time_for_moving_turtlebot:
+        t = t + dt
+        Xn = Xn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
+        Yn = Yn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
+        Thetan = Thetan + ((radius_wheel * (2 / 60) * pi / distance_between_wheels) * (rpmr - rpml) * dt)
+        plt.plot([Xs, Xn], [Ys, Yn], color="blue")
 
-    plt.plot([Xs, Xn], [Ys, Yn], color="blue")
     Thetan = 180 * (Thetan) / 3.14
 
     return Xn, Yn, Thetan
 
+fig, ax = plt.subplots()
 
 def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle):
-    # (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpml)
+    # (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1)
     # class GraphNode:
     #     def __init__(self, point):
     #         self.position = point
@@ -241,7 +254,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
     # print(queue)
 
     actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]  # define a list with all the possible actions
-    actions = ["F1", "F2", "UP1", "UP2", "UP3", "DN1", "DN2", "DN3"]  # define a list with all the possible actions
+
     visited_set = set()  # a set is used to remove the duplicate node values
     visited_list = []  # a list is used to visualize the order of nodes visited and to maintain order
     cost_updates_matrix = np.zeros((int(10 / threshold_for_duplicate), int(10 / threshold_for_duplicate), 12),
@@ -251,7 +264,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
 
     cost_updates_matrix[:, :, :] = math.inf  # initialise cost update matrix with infinite costs for every node
     goal_reached = False  # set the goal_reached flag to zero initially
-    parent_child_map = {}  # define a dictionary to store parent and child relations
+    parent_child_map = { }  # define a dictionary to store parent and child relations
     # key in a dict can't be a list, only immutable things can be used as keys, so use tuples as keys
     parent_child_map[
         tuple([start_node_pos[0], start_node_pos[1], initial_angle])] = None  # for start node, there is no parent
@@ -261,7 +274,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
     start = process_time()  # start the time counter for calculating run time for the A* search algorithm
     last_node = None  # called last node because goal is not reached as such, we only reach in a 1.5 radius circle around the goal point
 
-    fig, ax = plt.subplots()
+
 
     while len(queue) > 0:  # as long as there are nodes yet to be checked in the queue, while loop keeps running
         current_node = get_minimum_element(queue)  # choose the node object with minimum cost
@@ -272,6 +285,13 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
         if approximation(current_point[0], current_point[1],
                          current_angle) not in visited_set:  # to avoid adding duplicates in the list
             visited_list.append(current_node)
+            if current_node.action is not None:
+                parent = current_node.parent
+                x_y_parent = parent.position
+                angle_parent = parent.angle
+                action = current_node.action
+                plot_curve(x_y_parent, angle_parent, action[0], action[1])
+
         visited_set.add(approximation(current_point[0], current_point[1],
                                       current_angle))  # you can only put immutable objects in a set, string is also immutable
 
@@ -286,36 +306,15 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
         child_nodes = []
         # actions = ["S", "UP1", "UP2", "DN1", "DN2"] ,     action = iterable element
         for action in actions:
-            # get_new_node is run for every action , U, D, L, R, UR, DR, UL, DL
+            # get_new_node is run for every action , U, D, distance_between_wheels, R, UR, DR, UL, DL
             new_point, base_cost = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle,
-                                                rpml, rpmr)
-
-            plot_curve(current_point, current_angle, rpml, rpmr)
-
-            # rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpml, rpmr)
-            # X1 = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
-            # for action in actions:
-            #     X2 = get_new_node(action, clearance, radius_rigid_robot, current_point, current_angle, rpml, rpmr)
-
-            # plt.grid()
-            #
-            # ax.set_aspect('equal')
-            #
-            # plt.xlim(-5.5, 5.5)
-            # plt.ylim(-5.5, 5.5)
-            #
-            # plt.title('How to plot a vector in matplotlib ?', fontsize=10)
-            #
-            # plt.show()
-            # plt.close()
-
-            # print(new_point)
+                                                rpm1, rpm2)
             if new_point is not None:  # present in the explorable area and not in obstacle
                 # print(action)
                 # we get a None value as return "None" only when the new_point is in obstacle
                 # print(len(new_point))
                 # if new_point is not visited[int()][][]
-                child_nodes.append((new_point, base_cost))  # append the new node in child nodes along with cost
+                child_nodes.append((new_point, base_cost, action))  # append the new node in child nodes along with cost
 
         # print(child_nodes[0])        #first element of the list = ([x,y,theta],cost)
         # print(child_nodes[0][0])     #first element of first element of the list = [x,y,theta]
@@ -324,6 +323,21 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
         for child in child_nodes:  # child = iterable element in child_nodes = of the format ([x,y,angle],cost)
             child[0][2] = reset_angle_in_range(child[0][2])
             approx_x, approx_y, approx_theta = approximation(child[0][0], child[0][1], child[0][2])
+            action = child[2]
+            rpm_turtlebot = action_map_with_rpm[action]
+
+            # action_map_with_rpm = {
+            #     'F1': (rpm1, rpm1),
+            #     'F2': (rpm2, rpm2),
+            #
+            #     'UP1': (0, rpm1),
+            #     'UP2': (0, rpm2),
+            #     'UP3': (rpm2, rpm1),
+            #
+            #     'DN1': (rpm1, 0),
+            #     'DN2': (rpm2, 0),
+            #     'DN3': (rpm1, rpm2)
+            # }
 
             # duplicate node removal
             if approximation(child[0][0], child[0][1], child[0][2]) not in visited_set:
@@ -353,6 +367,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                     child_node.cost = new_cost
                     child_node.parent = current_node
                     child_node.total_cost = total_cost
+                    child_node.action = rpm_turtlebot
                     child_node.angle = child[0][2]
                     queue.append(child_node)  # child_node is yet to be explored
                     print('addedtoq')
@@ -379,7 +394,7 @@ def main():
                                                                 radius_rigid_robot, initial_angle)
     # (start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle)
     # # plot the path:
-    fig, ax = plt.subplots()
+
     plt.grid()
     # #
     ax.set_aspect('equal')

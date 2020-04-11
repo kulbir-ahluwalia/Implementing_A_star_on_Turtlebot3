@@ -24,7 +24,7 @@ def plot_curve(X0,Y0,Theta0,UL,UR):
         X1=X1+dx
         Y1=Y1+dy
         Theta1=Theta1+0.5*dtheta
-        plt.quiver(X0, Y0, X1, Y1,units='xy' ,scale=1,color= 'r',width =0.2, headwidth = 1,headlength=0)
+        plt.quiver(X0, Y0, X1, Y1,units='xy' ,scale=1,color= 'radius_wheel',width =0.2, headwidth = 1,headlength=0)
         Xn=X0+X1
         Yn=Y0+Y1
         Thetan=180*(Theta1)/3.14 

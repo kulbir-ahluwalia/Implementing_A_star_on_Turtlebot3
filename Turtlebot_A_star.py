@@ -42,7 +42,7 @@ threshold_for_duplicate = 0.1
 radius_wheel = 0.033
 distance_between_wheels = 0.160
 pi = math.pi
-time_for_moving_turtlebot = 5
+time_for_moving_turtlebot = 1
 
 ###################################################################################################################
 #               TESTING CODE
@@ -50,28 +50,29 @@ time_for_moving_turtlebot = 5
 
 turtlebot_diameter = 0.21 #0.21 metres
 
-# for testing for video 1
-start_node_x = -3.5
-start_node_y = -3
-initial_angle = 30
-goal_node_x = 0
-goal_node_y = -3
-
-# # for testing for video 2
+# # for testing for video 1
 # start_node_x = -3.5
 # start_node_y = -3
 # initial_angle = 30
 # goal_node_x = 0
 # goal_node_y = -3
 
+# for testing for video 2
+start_node_x = -4
+start_node_y = -4
+initial_angle = 30
+goal_node_x = 4
+goal_node_y = 2.5
+
 rpm1 = 40
 rpm2 = 50
 radius_rigid_robot = 0.105
+# radius_rigid_robot = 0
 
 clearance = 0.2
 start_node_position = [start_node_x, start_node_y]
 goal_node_position = [goal_node_x, goal_node_y]
-threshold_for_duplicate = 0.1
+
 augment_distance = radius_rigid_robot + clearance
 
 
@@ -83,6 +84,8 @@ if (start_node_y < -5.1 and start_node_y > 5.1) and (goal_node_y < -5.1 and goal
     print("Y coordinate is out of range. Enter y from [0,200]. Restart program!")
     exit(0)
 
+
+fig, ax = plt.subplots()
 
 def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y):
     if test_point_obstacle_check(clearance, radius_rigid_robot, [start_node_x, start_node_y]):
@@ -117,7 +120,7 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
     dt = 0.1
     Xn = test_point_coord[0]
     Yn = test_point_coord[1]
-    Thetan = pi * test_point_angle / 180
+    Thetan = math.radians(test_point_angle) #* test_point_angle / 180
  
     while t < time_for_moving_turtlebot:
         t = t + dt
@@ -133,7 +136,7 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
 
     distance_covered = bot_velocity * time_for_moving_turtlebot
 
-    Thetan = 180 * (Thetan) / pi
+    Thetan = reset_angle_in_range(math.degrees(Thetan))
     new_point = [Xn, Yn, Thetan]
 
     if (test_point_obstacle_check(clearance, radius_rigid_robot, new_point)) == False:
@@ -189,12 +192,16 @@ def round_off_till_threshold(number, threshold):
 
 
 def approximation(x, y, angle_theta):
+    print('angle_theta', angle_theta)
     x = round_off_till_threshold(x, 0.1)
     y = round_off_till_threshold(y, 0.1)
 
     angle_theta = round_off_till_threshold(angle_theta, 30)
     # angle_theta = reset_angle_in_range(angle_theta)
-    return (x, y, int(angle_theta / 30))
+    if angle_theta == 12:
+        angle_theta = 0
+    return (x, y, angle_theta)
+    #return (x, y, int(angle_theta / 30))
 
 
 def check_goal(position, goal):
@@ -213,27 +220,29 @@ def reset_angle_in_range(angle):
         return angle
 
 
-def plot_curve(current_point, current_angle, rpml, rpmr):
+def plot_curve(current_point, current_angle, rpml, rpmr, color):
     t = 0
     dt = 0.1
     Xn = current_point[0]
     Yn = current_point[1]
     Xs = Xn
     Ys = Yn
-    Thetan = current_angle
+    Thetan = math.radians(current_angle)
 
     while t < time_for_moving_turtlebot:
         t = t + dt
+        Xs = Xn
+        Ys = Yn
         Xn = Xn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.cos(Thetan) * dt) / 2
         Yn = Yn + (radius_wheel * (2 / 60) * pi * (rpml + rpmr) * math.sin(Thetan) * dt) / 2
         Thetan = Thetan + ((radius_wheel * (2 / 60) * pi / distance_between_wheels) * (rpmr - rpml) * dt)
-        plt.plot([Xs, Xn], [Ys, Yn], color="blue")
+        plt.plot([Xs, Xn], [Ys, Yn], color=color)
+        #plt.show()
 
-    Thetan = 180 * (Thetan) / 3.14
+    Thetan = math.degrees(Thetan)
 
     return Xn, Yn, Thetan
 
-fig, ax = plt.subplots()
 
 def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle):
     # (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1)
@@ -285,12 +294,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
         if approximation(current_point[0], current_point[1],
                          current_angle) not in visited_set:  # to avoid adding duplicates in the list
             visited_list.append(current_node)
-            if current_node.action is not None:
-                parent = current_node.parent
-                x_y_parent = parent.position
-                angle_parent = parent.angle
-                action = current_node.action
-                plot_curve(x_y_parent, angle_parent, action[0], action[1])
+
 
         visited_set.add(approximation(current_point[0], current_point[1],
                                       current_angle))  # you can only put immutable objects in a set, string is also immutable
@@ -348,8 +352,10 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                 # print(approx_x, approx_y, approx_theta)
 
                 # to find the previous cost from the cost_update_matrix
+                print('approx_theta', approx_theta)
                 prev_cost = cost_updates_matrix[approx_y + int(5 / threshold_for_duplicate), approx_x + int(
                     5 / threshold_for_duplicate), approx_theta]  # row,column
+                print(prev_cost)
                 # prev_cost = cost_updates_matrix[y, x]  # row,column
 
                 # add the cost of the child to the current node's cost to get new cost
@@ -370,7 +376,7 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
                     child_node.action = rpm_turtlebot
                     child_node.angle = child[0][2]
                     queue.append(child_node)  # child_node is yet to be explored
-                    print('addedtoq')
+
                     #
                     # key=child coord,  value=parent coord
                     parent_child_map[tuple(child[0])] = tuple([current_point[0], current_point[1],
@@ -452,13 +458,13 @@ def main():
     polygon = plt.Polygon(points)
     ax.add_patch(polygon)
 
-    plt.xlim(-5.5, 5.5)
-    plt.ylim(-5.5, 5.5)
+    plt.xlim(-5.2, 5.2)
+    plt.ylim(-5.2, 5.2)
 
-    plt.show()
+    #plt.show()
 
     #
-    out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 1, (565, 379))
+    #out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 1, (565, 379))
     #
     # #visited_list is none only when the goal is not found
     if visited_list is not None:
@@ -466,6 +472,18 @@ def main():
         # for loop is for visited_list aka explored nodes
         for ind, v in enumerate(visited_list):
             # print(ind) #ind = index
+
+            parent = v.parent
+            if parent is not None:
+                parent_pos = parent.position
+                print('pa', parent_pos)
+                parent_angle = parent.angle
+                action = v.action
+                print('ac', action)
+                plot_curve(parent_pos, parent_angle, action[0], action[1], 'blue')
+
+
+            '''
             child_pos = v.position
             if v.parent is not None:
                 parent_pos = v.parent.position
@@ -488,6 +506,7 @@ def main():
 
                     # write the image in the video
                     out.write(plot_img)
+            '''
 
         trace_path = []
 
@@ -497,78 +516,51 @@ def main():
         child_pos_tuple = (child_pos[0], child_pos[1], last_node.angle)
 
         # find the parent of last node
-        parent = parent_child_map[child_pos_tuple]
-
+        #parent = parent_child_map[child_pos_tuple]
+        action_path = []
+        parent = last_node
         # to trackback and plot the vectors
         while parent is not None:
             #     # parent is None only at the first node
             #     #ax.quiver to plot the vector
-            ax.quiver(parent[0], parent[1], child_pos_tuple[0] - parent[0], child_pos_tuple[1] - parent[1], units='xy',
-                      scale=1, color='g')
+            # ax.quiver(parent[0], parent[1], child_pos_tuple[0] - parent[0], child_pos_tuple[1] - parent[1], units='xy',
+            #           scale=1, color='g')
             #
-            trace_path.append(parent)
-            #     # Every parent has a child, kyunki saas bhi kabhi bahu thi... - Guruji
+            #trace_path.append(parent)
+            action_path.append(parent.action)
+            parent = parent.parent
+
+            #     # Every parent was a child, kyunki saas bhi kabhi bahu thi... - Guruji
             #     # the current parent is made a child
-            child_pos_tuple = parent
+            ##child_pos_tuple = parent
             #
             #     # find the parent of the parent using the parent_child_map
-            parent = parent_child_map[parent]
+            ##parent = parent_child_map[parent]
         #
         #
-        plt_name = './plots/plot.png'
-        plt.savefig(plt_name, bbox_inches='tight')
-        plot_img = cv2.imread(plt_name)
-        out.write(plot_img)
+        #plt_name = './plots/plot.png'
+        #plt.savefig(plt_name, bbox_inches='tight')
+        #plot_img = cv2.imread(plt_name)
+        #out.write(plot_img)
 
-        out.release()
+        action_path.reverse()
+        #action_path= [[150, 40], [150, 0], [150, 40], [40, 40],[150, 40],[150, 50],[40, 150],[40, 0],[150, 40], ]
+        x_coord = start_node_x
+        y_coord = start_node_y
+        or_angle = initial_angle
+        for action in action_path:
+            if action is not None:
+                x_coord, y_coord, or_angle = plot_curve((x_coord, y_coord), or_angle, action[0], action[1], 'green')
+
+
+        #out.release()
 
         # fig.show()
         # fig.draw()
+        plt.figure(dpi=2400)
         plt.show()
     else:
         print('Cannot find goal.')
-
-    '''
-    trace_path.reverse()
-    for point in trace_path:
-        image[point[1], point[0]] = (200, 0, 200)
-        resized_new = cv2.resize(image, None, fx=6, fy=6, interpolation=cv2.INTER_CUBIC)
-
-    cv2_imshow(resized_new)
-
-    print("Press any key to Quit")
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()        while parent is not None:
-            # parent is None only at the first node
-            #ax.quiver to plot the vector
-            ax.quiver(parent[0], parent[1], child_pos_tuple[0] - parent[0], child_pos_tuple[1] - parent[1], units='xy', scale=1, color='g')
-
-            #trace_path.append(parent)
-            # Every parent has a child, kyunki saas bhi kabhi bahu thi... - Guruji
-            # the current parent is made a child
-            child_pos_tuple = parent
-
-            # find the parent of the parent using the parent_child_map
-            parent = parent_child_map[parent]
-
-
-        plt_name = './plots/plot.png'
-        plt.savefig(plt_name, bbox_inches='tight')
-        plot_img = cv2.imread(plt_name)
-        out.write(plot_img)
-
-        out.release()
-
-
-        fig.show()
-        # fig.draw()
-        plt.show()
-
-    plt.imshow(image)
-    # print(image)
-    plt.show()
-    '''
-
 
 if __name__ == "__main__":
     main()

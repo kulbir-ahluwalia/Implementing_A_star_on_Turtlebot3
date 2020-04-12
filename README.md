@@ -27,7 +27,7 @@ Open the video "video2_black.avi"<br>
 
 ## Organisation of code
 The code is split into 2 python programs which are:-
-1. **A_star_final.py** is main python file which has the A star algorithm, code for non-holonomic constraints, video generation and plotting.
+1. **Turtlebot_A_star.py** is main python file which has the A star algorithm, code for non-holonomic constraints, video generation and plotting.
  
 2. **obstacle_check.py** checks whether a point is within an obstacle or not.
  

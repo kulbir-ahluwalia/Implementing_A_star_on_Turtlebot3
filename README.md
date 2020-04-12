@@ -57,20 +57,38 @@ The final image is "plots.png" in the plots folder.
 
 # Implementing_A_star_on_Turtlebot3 - Phase 4
  
- 
-1. First of all, this project is done in ROS melodic (ubuntu 18.04).
-2. Have a catkin workspace ready with build, devel, src and .catkin_workspace.
-3. Clone/copy the repository: https://github.com/kulbir-ahluwalia/Implementing_A_star_on_Turtlebot3
-4. Clone it at or paste it at the src folder of catkin-ws: username@pcname:~/catkin_ws/src$
-5. Change directory to catkin_ws by running the following command in new terminal: cd catkin_ws
-6. Then run another command in the same terminal: catkin_make
-7. The next command is (if you are using bash) : source devel/setup.bash
-Important Note: Have turtle bot 3 installed in your workspace already before you proceed to next step. If you install it now then start over from the step 5.
-8. We use the following command to run the Gazebo world: roslaunch a_star_turtlebot a_star_launch_turtlebot.launch x_pos:=-2 y_pos:=1 Yaw:=0.0
-Here enter the start coordinates (x-coordinate goes at x_pos, y-coordinate goes at y_pos, Yaw takes angles in radians)
-9. This should spawn the turtlebot3 launched in the Gazebo at the desired start coordinates.
-10. Open another terminal.
-11. Change directory to catkin_ws by running the following command: cd catkin_ws
-12. The next command is (if you are using bash) : source devel/setup.bash
-13. Now run the following command to execute the python script: rosrun a_star_turtlebot dummy.py
-Now this make the robot move to the goal node.
+ 1. First of all, this project is done in ROS melodic (ubuntu 18.04).   
+2. Have a catkin workspace ready with build, devel, src and .catkin_workspace.   
+3. Clone/copy the repository: https://github.com/kulbir-ahluwalia/Implementing_A_star_on_Turtlebot3   
+4. Clone it at or paste it at the src folder of catkin-ws: username@pcname:~/catkin_ws/src   
+5. Change directory to catkin_ws by running the following command in new terminal: cd catkin_ws   
+6. Then run another command in the same terminal: catkin_make  
+7. The next command is (if you are using bash) : source devel/setup.bash   
+Important Note: Have turtle bot 3 installed in your workspace already before you proceed to next step. If you install it now then start over from the step 5.       
+
+**For Video 1:-**  
+8. We use the following command to run the Gazebo world: 
+```
+roslaunch a_star_turtlebot a_star_launch_turtlebot_burger.launch x_pos:=-4 y_pos:=-2.8 Yaw:=0.349   
+```
+Here enter the start coordinates (x-coordinate goes at x_pos, y-coordinate goes at y_pos, Yaw takes angles in radians)    
+
+9. This should spawn the turtlebot3 launched in the Gazebo at the desired start coordinates.   
+10. Open another terminal.    
+11. Change directory to catkin_ws by running the following command: cd catkin_ws   
+12. The next command is (if you are using bash) : source devel/setup.bash    
+13. Now run the following command to execute the python script: 
+```     
+rosrun a_star_turtlebot turtlebot3_test1.py    
+```
+Now this makes the robot move to the goal node.   
+
+
+For Video 2, it's the following command in one terminal:-
+```
+roslaunch a_star_turtlebot a_star_launch_turtlebot_burger.launch x_pos:=-4 y_pos:=-3 Yaw:=1.0472   
+```
+followed by this in another terminal:-
+```
+rosrun a_star_turtlebot turtlebot3_video2.py   
+```

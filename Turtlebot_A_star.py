@@ -51,22 +51,23 @@ time_for_moving_turtlebot = 1
 #
 turtlebot_diameter = 0.21 #0.21 metres
 
-# for testing for video 1
-start_node_x = -4
-start_node_y = -3
-initial_angle = 20
-goal_node_x = 0
-goal_node_y = -2.5
-
-# # for testing for video 2
+# # for testing for video 1
 # start_node_x = -4
-# start_node_y = -4
-# initial_angle = 30
-# goal_node_x = 4
-# goal_node_y = 2.5
+# start_node_y = -2.8
+# initial_angle = 20
+# goal_node_x = 0
+# goal_node_y = -2.5
 
-rpm1 = 30
-rpm2 = 40
+# for testing for video 2
+start_node_x = -4
+start_node_y = -3     #75 deg = 1.309 rad
+initial_angle = 60   #60 deg = 1.0472 rad
+goal_node_x = 4       #30 deg = 0.5236 rad
+goal_node_y = 2.3     #20 deg = 0.349 rad
+
+
+rpm1 = 20
+rpm2 = 30
 radius_rigid_robot_burger = 0.105
 # radius_rigid_robot_waffle = 0.220
 # radius_rigid_robot_burger = 0.105
@@ -74,7 +75,7 @@ radius_rigid_robot_burger = 0.105
 
 # radius_rigid_robot_burger = 0
 
-clearance = 0.45
+clearance = 0.4
 start_node_position = [start_node_x, start_node_y]
 goal_node_position = [goal_node_x, goal_node_y]
 

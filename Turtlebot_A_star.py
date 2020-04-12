@@ -56,7 +56,7 @@ start_node_x = -4
 start_node_y = -3
 initial_angle = 20
 goal_node_x = 0
-goal_node_y = -3
+goal_node_y = -2.5
 
 # # for testing for video 2
 # start_node_x = -4
@@ -74,7 +74,7 @@ radius_rigid_robot_burger = 0.105
 
 # radius_rigid_robot_burger = 0
 
-clearance = 0.4
+clearance = 0.45
 start_node_position = [start_node_x, start_node_y]
 goal_node_position = [goal_node_x, goal_node_y]
 

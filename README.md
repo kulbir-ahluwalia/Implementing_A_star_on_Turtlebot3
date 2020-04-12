@@ -1,4 +1,4 @@
-# Implementing_A_star_on_Turtlebot3
+# Implementing_A_star_on_Turtlebot3 - Phase 3
 
 Enter all values in metres and degrees.
  
@@ -10,11 +10,11 @@ Enter all values in metres and degrees.
 3. Enter all values that the program asks for in metres and degrees.If the points provided are in the obstacle space, program will terminate.<br>
 4. To view the simulation of "video1_orange.avi" enter the following parameters -   
 -Start_x, start_y, start_angle (entered separately) : (-4, -3.5, 30)  
--Goal_x, Goal_y : (0.5, -2.5)    
+-Goal_x, Goal_y : (0.5, -2.5)      
 -rpm1, rpm2 = 40,50   
 -radius of rigid robot = 0.105   
 -Clearance : 0.2   
-Open the video "output.avi"
+Open the video "output.avi"    
 
 5. To view the simulation of "video2_black.avi" enter the following parameters -   
 -Start_x, start_y, start_angle (entered separately) : (-4, -4, 30)    

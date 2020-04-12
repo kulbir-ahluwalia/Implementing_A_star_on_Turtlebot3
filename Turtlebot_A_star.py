@@ -11,29 +11,30 @@ import math
 import matplotlib.pyplot as plt
 from time import process_time
 import cv2
+import json
 
 ###################################################################################################################
 #               USER INPUT
 ###################################################################################################################
-# Uncomment to choose different positions:-
-print("Kindly enter all values in metres")
-start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
-start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
-initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
-
-goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
-goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
-
-start_node_position = [start_node_x, start_node_y]
-goal_node_position = [goal_node_x, goal_node_y]
-
-# two rpm values
-rpm1 = float(input("Enter value of rpm 1\n"))
-rpm2 = float(input("Enter value of rpm 2\n"))
-
-radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
-clearance = float(input("Enter the desired clearance for the rigid robot\n"))
-augment_distance = radius_rigid_robot + clearance
+# # Uncomment to choose different positions:-
+# print("Kindly enter all values in metres")
+# start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
+# start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
+# initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
+#
+# goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
+# goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
+#
+# start_node_position = [start_node_x, start_node_y]
+# goal_node_position = [goal_node_x, goal_node_y]
+#
+# # two rpm values
+# rpm1 = float(input("Enter value of rpm 1\n"))
+# rpm2 = float(input("Enter value of rpm 2\n"))
+#
+# radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
+# clearance = float(input("Enter the desired clearance for the rigid robot\n"))
+# augment_distance = radius_rigid_robot + clearance
 
 ###################################################################################################################
 #               CONSTANTS
@@ -48,32 +49,32 @@ time_for_moving_turtlebot = 5
 #               TESTING CODE
 ###################################################################################################################
 #
-# turtlebot_diameter = 0.21 #0.21 metres
-#
-# # for testing for video 1
+turtlebot_diameter = 0.21 #0.21 metres
+
+# for testing for video 1
+start_node_x = -4
+start_node_y = -3.5
+initial_angle = 30
+goal_node_x = 0.5
+goal_node_y = -2.5
+
+# # for testing for video 2
 # start_node_x = -4
-# start_node_y = -3.5
+# start_node_y = -4
 # initial_angle = 30
-# goal_node_x = 0.5
-# goal_node_y = -2.5
-#
-# # # for testing for video 2
-# # start_node_x = -4
-# # start_node_y = -4
-# # initial_angle = 30
-# # goal_node_x = 4
-# # goal_node_y = 2.5
-#
-# rpm1 = 40
-# rpm2 = 50
-# radius_rigid_robot = 0.105
-# # radius_rigid_robot = 0
-#
-# clearance = 0.2
-# start_node_position = [start_node_x, start_node_y]
-# goal_node_position = [goal_node_x, goal_node_y]
-#
-# augment_distance = radius_rigid_robot + clearance
+# goal_node_x = 4
+# goal_node_y = 2.5
+
+rpm1 = 20
+rpm2 = 20
+radius_rigid_robot = 0.105
+# radius_rigid_robot = 0
+
+clearance = 0.2
+start_node_position = [start_node_x, start_node_y]
+goal_node_position = [goal_node_x, goal_node_y]
+
+augment_distance = radius_rigid_robot + clearance
 
 
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
@@ -143,6 +144,16 @@ def rpm_to_new_point(clearance, radius_rigid_robot, test_point_coord, test_point
         return new_point, distance_covered
     else:
         return None, None
+
+def write_param_json(action, test_point_coord, test_point_angle):
+    dict_vel = { }
+    dict_vel['velocity'] = list(action)
+    dict_vel['delta_time'] = time_for_moving_turtlebot
+    dict_vel['init_pose'] = (test_point_coord[0],test_point_coord[1], test_point_angle)
+
+    file_name = 'turtlebot_velocities.json'
+    with open(file_name, 'w') as outfile:
+        json.dump(dict_vel, outfile)
 
 
 def get_new_node(action, clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm2):
@@ -482,7 +493,7 @@ def main():
                 print('ac', action)
                 plot_curve(parent_pos, parent_angle, action[0], action[1], 'orange')
 
-                if ind % 30 == 0:
+                if ind % 3000 == 0:
                     # "." denotes the current directory
                     # ".." denotes the previous directory
                     plt_name = './plots/plot' + str(ind) + '.png'
@@ -570,6 +581,15 @@ def main():
         out.write(plot_img)
 
         out.release()
+
+        lin_ang_vel_list = []
+        for action in action_path:
+            if action is not None:
+                linv = radius_wheel * (2 / 60) * pi * (action[0] + action[1])
+                angv = (radius_wheel * (2 / 60) * pi / distance_between_wheels) * (action[1] - action[0])
+                lin_ang_vel_list.append([linv, angv])
+
+        write_param_json(lin_ang_vel_list, (start_node_x, start_node_y), math.radians(initial_angle))
 
         fig.show()
         plt.show()

@@ -16,24 +16,24 @@ import cv2
 #               USER INPUT
 ###################################################################################################################
 # Uncomment to choose different positions:-
-# print("Kindly enter all values in metres")
-# start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
-# start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
-# initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
-#
-# goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
-# goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
-#
-# start_node_position = [start_node_x, start_node_y]
-# goal_node_position = [goal_node_x, goal_node_y]
-#
-# # two rpm values
-# rpm1 = float(input("Enter value of rpm 1\n"))
-# rpm2 = float(input("Enter value of rpm 2\n"))
-#
-# radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
-# clearance = float(input("Enter the desired clearance for the rigid robot\n"))
-# augment_distance = radius_rigid_robot + clearance
+print("Kindly enter all values in metres")
+start_node_x = float(input("Enter the starting x coordinate for the rigid robot\n"))
+start_node_y = float(input("Enter the starting y coordinate for the rigid robot\n"))
+initial_angle = float(input("Enter the initial angle of the robot in degree\n"))
+
+goal_node_x = float(input("Enter the goal x coordinate for the rigid robot\n"))
+goal_node_y = float(input("Enter the goal y coordinate for the rigid robot\n"))
+
+start_node_position = [start_node_x, start_node_y]
+goal_node_position = [goal_node_x, goal_node_y]
+
+# two rpm values
+rpm1 = float(input("Enter value of rpm 1\n"))
+rpm2 = float(input("Enter value of rpm 2\n"))
+
+radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
+clearance = float(input("Enter the desired clearance for the rigid robot\n"))
+augment_distance = radius_rigid_robot + clearance
 
 ###################################################################################################################
 #               CONSTANTS
@@ -42,38 +42,38 @@ threshold_for_duplicate = 0.1
 radius_wheel = 0.033
 distance_between_wheels = 0.160
 pi = math.pi
-time_for_moving_turtlebot = 1
+time_for_moving_turtlebot = 5
 
 ###################################################################################################################
 #               TESTING CODE
 ###################################################################################################################
-
-turtlebot_diameter = 0.21 #0.21 metres
-
+#
+# turtlebot_diameter = 0.21 #0.21 metres
+#
 # # for testing for video 1
-# start_node_x = -3.5
-# start_node_y = -3
+# start_node_x = -4
+# start_node_y = -3.5
 # initial_angle = 30
-# goal_node_x = 0
-# goal_node_y = -3
-
-# for testing for video 2
-start_node_x = -4
-start_node_y = -4
-initial_angle = 30
-goal_node_x = 4
-goal_node_y = 2.5
-
-rpm1 = 40
-rpm2 = 50
-radius_rigid_robot = 0.105
-# radius_rigid_robot = 0
-
-clearance = 0.2
-start_node_position = [start_node_x, start_node_y]
-goal_node_position = [goal_node_x, goal_node_y]
-
-augment_distance = radius_rigid_robot + clearance
+# goal_node_x = 0.5
+# goal_node_y = -2.5
+#
+# # # for testing for video 2
+# # start_node_x = -4
+# # start_node_y = -4
+# # initial_angle = 30
+# # goal_node_x = 4
+# # goal_node_y = 2.5
+#
+# rpm1 = 40
+# rpm2 = 50
+# radius_rigid_robot = 0.105
+# # radius_rigid_robot = 0
+#
+# clearance = 0.2
+# start_node_position = [start_node_x, start_node_y]
+# goal_node_position = [goal_node_x, goal_node_y]
+#
+# augment_distance = radius_rigid_robot + clearance
 
 
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
@@ -464,7 +464,7 @@ def main():
     #plt.show()
 
     #
-    #out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 1, (565, 379))
+    out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'XVID'), 1, (419, 413))
     #
     # #visited_list is none only when the goal is not found
     if visited_list is not None:
@@ -480,7 +480,24 @@ def main():
                 parent_angle = parent.angle
                 action = v.action
                 print('ac', action)
-                plot_curve(parent_pos, parent_angle, action[0], action[1], 'blue')
+                plot_curve(parent_pos, parent_angle, action[0], action[1], 'orange')
+
+                if ind % 30 == 0:
+                    # "." denotes the current directory
+                    # ".." denotes the previous directory
+                    plt_name = './plots/plot' + str(ind) + '.png'
+
+                    # savefig is a function of matplotlib
+                    plt.savefig(plt_name, bbox_inches='tight')
+
+                    # read the image stored using cv2
+                    plot_img = cv2.imread(plt_name)
+
+                    # plot_img.shape = gives dimension of the frame
+                    # print('frame', plot_img.shape)
+
+                    # write the image in the video
+                    out.write(plot_img)
 
 
             '''
@@ -536,12 +553,7 @@ def main():
             #
             #     # find the parent of the parent using the parent_child_map
             ##parent = parent_child_map[parent]
-        #
-        #
-        #plt_name = './plots/plot.png'
-        #plt.savefig(plt_name, bbox_inches='tight')
-        #plot_img = cv2.imread(plt_name)
-        #out.write(plot_img)
+
 
         action_path.reverse()
         #action_path= [[150, 40], [150, 0], [150, 40], [40, 40],[150, 40],[150, 50],[40, 150],[40, 0],[150, 40], ]
@@ -550,14 +562,16 @@ def main():
         or_angle = initial_angle
         for action in action_path:
             if action is not None:
-                x_coord, y_coord, or_angle = plot_curve((x_coord, y_coord), or_angle, action[0], action[1], 'green')
+                x_coord, y_coord, or_angle = plot_curve((x_coord, y_coord), or_angle, action[0], action[1], 'black')
 
+        plt_name = './plots/plot.png'
+        plt.savefig(plt_name, bbox_inches='tight')
+        plot_img = cv2.imread(plt_name)
+        out.write(plot_img)
 
-        #out.release()
+        out.release()
 
-        # fig.show()
-        # fig.draw()
-        plt.figure(dpi=2400)
+        fig.show()
         plt.show()
     else:
         print('Cannot find goal.')

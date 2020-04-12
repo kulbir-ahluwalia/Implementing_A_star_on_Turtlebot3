@@ -32,9 +32,9 @@ import json
 # rpm1 = float(input("Enter value of rpm 1\n"))
 # rpm2 = float(input("Enter value of rpm 2\n"))
 #
-# radius_rigid_robot = float(input("Enter the radius of the rigid robot \n"))
+# radius_rigid_robot_burger = float(input("Enter the radius of the rigid robot \n"))
 # clearance = float(input("Enter the desired clearance for the rigid robot\n"))
-# augment_distance = radius_rigid_robot + clearance
+# augment_distance = radius_rigid_robot_burger + clearance
 
 ###################################################################################################################
 #               CONSTANTS
@@ -43,7 +43,7 @@ threshold_for_duplicate = 0.1
 radius_wheel = 0.033
 distance_between_wheels = 0.160
 pi = math.pi
-time_for_moving_turtlebot = 5
+time_for_moving_turtlebot = 1
 
 ###################################################################################################################
 #               TESTING CODE
@@ -53,10 +53,10 @@ turtlebot_diameter = 0.21 #0.21 metres
 
 # for testing for video 1
 start_node_x = -4
-start_node_y = -3.5
-initial_angle = 30
-goal_node_x = 0.5
-goal_node_y = -2.5
+start_node_y = -3
+initial_angle = 20
+goal_node_x = 0
+goal_node_y = -3
 
 # # for testing for video 2
 # start_node_x = -4
@@ -65,35 +65,39 @@ goal_node_y = -2.5
 # goal_node_x = 4
 # goal_node_y = 2.5
 
-rpm1 = 20
-rpm2 = 20
-radius_rigid_robot = 0.105
-# radius_rigid_robot = 0
+rpm1 = 30
+rpm2 = 40
+radius_rigid_robot_burger = 0.105
+# radius_rigid_robot_waffle = 0.220
+# radius_rigid_robot_burger = 0.105
 
-clearance = 0.2
+
+# radius_rigid_robot_burger = 0
+
+clearance = 0.4
 start_node_position = [start_node_x, start_node_y]
 goal_node_position = [goal_node_x, goal_node_y]
 
-augment_distance = radius_rigid_robot + clearance
+augment_distance = radius_rigid_robot_burger + clearance
 
 
 if (start_node_x < -5.1 and start_node_x > 5.1) and (goal_node_x < -5.1 and goal_node_x > 5.1):
-    print("X coordinate is out of range. Enter x from [0,300]. Restart program!")
+    print("X coordinate is out of range. Enter x from [-5,5]. Restart program!")
     exit(0)
 
 if (start_node_y < -5.1 and start_node_y > 5.1) and (goal_node_y < -5.1 and goal_node_y > 5.1):
-    print("Y coordinate is out of range. Enter y from [0,200]. Restart program!")
+    print("Y coordinate is out of range. Enter y from [-5,5]. Restart program!")
     exit(0)
 
 
 fig, ax = plt.subplots()
 
 def check_inputs_wrt_obstacles(start_node_x, start_node_y, goal_node_x, goal_node_y):
-    if test_point_obstacle_check(clearance, radius_rigid_robot, [start_node_x, start_node_y]):
+    if test_point_obstacle_check(clearance, radius_rigid_robot_burger, [start_node_x, start_node_y]):
         print("Start node is inside an obstacle. Enter some other coordinates. Restart program!")
         exit(0)
 
-    if test_point_obstacle_check(clearance, radius_rigid_robot, [goal_node_x, goal_node_y]):
+    if test_point_obstacle_check(clearance, radius_rigid_robot_burger, [goal_node_x, goal_node_y]):
         print("Goal node is inside an obstacle. Enter some other coordinates. Restart program!")
         exit(0)
 
@@ -216,7 +220,7 @@ def approximation(x, y, angle_theta):
 
 
 def check_goal(position, goal):
-    if (((position[0] - goal[0]) ** 2) + ((position[1] - goal[1]) ** 2)) <= (0.5) ** 2:
+    if (((position[0] - goal[0]) ** 2) + ((position[1] - goal[1]) ** 2)) <= (0.2) ** 2:
         return True
     else:
         return False
@@ -256,7 +260,7 @@ def plot_curve(current_point, current_angle, rpml, rpmr, color):
 
 
 def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle):
-    # (clearance, radius_rigid_robot, test_point_coord, test_point_angle, rpm1, rpm1)
+    # (clearance, radius_rigid_robot_burger, test_point_coord, test_point_angle, rpm1, rpm1)
     # class GraphNode:
     #     def __init__(self, point):
     #         self.position = point
@@ -408,8 +412,8 @@ def find_path_astar(start_node_pos, goal_node_pos, clearance, radius_rigid_robot
 
 def main():
     visited_list, parent_child_map, last_node = find_path_astar(start_node_position, goal_node_position, clearance,
-                                                                radius_rigid_robot, initial_angle)
-    # (start_node_pos, goal_node_pos, clearance, radius_rigid_robot, initial_angle)
+                                                                radius_rigid_robot_burger, initial_angle)
+    # (start_node_pos, goal_node_pos, clearance, radius_rigid_robot_burger, initial_angle)
     # # plot the path:
 
     plt.grid()
@@ -585,7 +589,7 @@ def main():
         lin_ang_vel_list = []
         for action in action_path:
             if action is not None:
-                linv = radius_wheel * (2 / 60) * pi * (action[0] + action[1])
+                linv = (radius_wheel * (2 / 60) * pi * (action[0] + action[1]))/2
                 angv = (radius_wheel * (2 / 60) * pi / distance_between_wheels) * (action[1] - action[0])
                 lin_ang_vel_list.append([linv, angv])
 
